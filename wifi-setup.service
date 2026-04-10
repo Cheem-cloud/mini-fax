@@ -1,0 +1,19 @@
+# Wi-Fi Setup — runs on boot before the fax service.
+# If Wi-Fi is already configured, exits immediately.
+# If not, starts a hotspot + setup portal.
+
+[Unit]
+Description=Mini Fax Wi-Fi Setup
+Before=mini-fax.service
+After=NetworkManager.service
+Wants=NetworkManager.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=no
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/samcrocker09/mini-fax/venv/bin/python /home/samcrocker09/mini-fax/wifi_setup.py
+TimeoutStartSec=infinity
+
+[Install]
+WantedBy=multi-user.target

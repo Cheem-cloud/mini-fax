@@ -1,0 +1,23 @@
+# Mini Fax systemd service
+# Install:
+#   sudo cp mini-fax.service /etc/systemd/system/
+#   sudo systemctl enable mini-fax
+#   sudo systemctl start mini-fax
+# Logs:
+#   journalctl -u mini-fax -f
+
+[Unit]
+Description=Mini Fax SMS Printer
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/samcrocker09/mini-fax
+ExecStart=/home/samcrocker09/mini-fax/venv/bin/python mini_fax.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

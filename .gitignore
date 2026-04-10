@@ -1,0 +1,14 @@
+# Secrets — never commit these
+config.py
+
+# Runtime state
+printed_messages.json
+contacts.json
+
+# Python
+__pycache__/
+*.pyc
+venv/
+
+# macOS
+.DS_Store
