@@ -20,6 +20,8 @@ from datetime import datetime, timedelta, timezone
 from twilio.rest import Client
 from escpos.printer import Usb
 
+import socket
+
 import config
 
 # ── Paper width ──
@@ -166,8 +168,9 @@ def print_startup_receipt(printer):
     printer.text("To manage contacts, open\n")
     printer.text("your phone's browser and go to:\n")
     printer.text("\n")
+    hostname = socket.gethostname() + ".local"
     printer.set(double_height=True)
-    printer.text("mini-fax.local\n")
+    printer.text(f"{hostname}\n")
     printer.set(double_height=False)
     printer.text("\n")
     printer.text("Bookmark it for easy access!\n")
