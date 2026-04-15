@@ -1,3 +1,4 @@
 python-escpos>=3.0
+pyusb>=1.0
 twilio>=8.0
 flask>=3.0

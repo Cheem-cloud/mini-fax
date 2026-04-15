@@ -93,7 +93,7 @@ SSH into the Pi and run these commands. Each one is a single line — copy and p
 **Install system dependencies:**
 
 ```
-sudo apt update && sudo apt install -y python3-venv python3-pip libusb-1.0-0-dev git
+sudo apt update && sudo apt install -y python3-venv python3-pip libusb-1.0-0-dev libopenjp2-7 git
 ```
 
 **Get the code onto the Pi:**
