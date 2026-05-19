@@ -19,14 +19,39 @@ import sys
 import threading
 from html import escape as html_escape
 
-from flask import Flask, request
+from flask import Flask, request, redirect
 
 app = Flask(__name__)
 
 HOTSPOT_SSID = "Mini-Fax-Setup"
 HOTSPOT_PASSWORD = "minifax123"
+HOTSPOT_IP = "10.42.0.1"
 
 connection_state = {"status": "idle"}
+
+
+def ensure_dnsmasq_config():
+    """Configure NetworkManager's dnsmasq to redirect all DNS to the hotspot IP.
+
+    This is what makes phones detect the Wi-Fi as a captive portal and pop up
+    the sign-in browser automatically. Without it, the user has to manually
+    type http://10.42.0.1.
+    """
+    config_dir = "/etc/NetworkManager/dnsmasq-shared.d"
+    config_file = os.path.join(config_dir, "captive.conf")
+    content = f"address=/#/{HOTSPOT_IP}\n"
+    try:
+        os.makedirs(config_dir, exist_ok=True)
+        existing = ""
+        if os.path.exists(config_file):
+            with open(config_file) as f:
+                existing = f.read()
+        if existing != content:
+            with open(config_file, "w") as f:
+                f.write(content)
+            print(f"  Wrote {config_file}")
+    except Exception as e:
+        print(f"  WARNING: Could not write dnsmasq config: {e}")
 
 
 # ── Network helpers ─────────────────────────────────────
@@ -380,6 +405,14 @@ def status():
     return json.dumps(connection_state), 200, {"Content-Type": "application/json"}
 
 
+@app.route("/<path:path>", methods=["GET", "POST"])
+def catch_all(path):
+    """Any unknown path (including iOS/Android captive-portal probes) redirects
+    to the setup page. Combined with DNS hijack, this makes phones auto-open
+    the setup screen without the user typing a URL."""
+    return redirect(f"http://{HOTSPOT_IP}/", code=302)
+
+
 @app.route("/connect", methods=["POST"])
 def connect():
     ssid = request.form.get("ssid", "").strip()
@@ -425,6 +458,8 @@ def main():
         return
 
     print("  No Wi-Fi connection found.")
+
+    ensure_dnsmasq_config()
 
     if not start_hotspot():
         print("  Could not start hotspot. Will retry in 10 seconds...")
